@@ -1,0 +1,475 @@
+Yes. We should postpone Attendance hardening.
+
+For an MVP, your current Attendance module is sufficient. We'll return later for indexes, stricter DB constraints, authorization, query optimization, and audit logging before production.
+
+More importantly, I would not start React yet. You have several core business modules still missing. Building the GUI now means repeatedly changing screens as the backend changes.
+
+## Current project status
+
+So far, we've built the core foundation around:
+
+```text
+SunComputer
+│
+├── Security / Authentication
+├── Users
+├── Students
+├── Courses
+├── Batches
+├── Enrollments
+├── Payments / Installments
+└── Attendance
+```
+
+Attendance is now MVP-level.
+
+## Remaining major modules
+
+I would structure the remaining development like this.
+
+### Phase 2, Academic Management
+
+1. Course Management
+
+   * Course CRUD
+   * Course duration
+   * Course fees
+   * Course modules/topics
+   * Active/inactive courses
+
+2. Batch Management
+
+   * Batch creation
+   * Start/end dates
+   * Course
+   * Teacher
+   * Batch capacity
+   * Batch timing
+   * Active/completed batches
+
+3. Teacher Management
+
+   * Teacher profiles
+   * Skills/subjects
+   * Assign teacher to batch
+   * Current batches
+   * Number of students
+   * Teacher workload
+
+4. Student Management improvements
+
+   * Student profile
+   * Documents
+   * Contact information
+   * Emergency contact
+   * Enrollment history
+   * Course history
+   * Payment history
+   * Attendance summary
+
+5. Academic Calendar
+
+   * Holidays
+   * Class schedules
+   * Events
+   * Batch timetable
+
+---
+
+### Phase 3, Examination
+
+This is a major module.
+
+6. Exam Management
+
+   * Create exam
+   * Exam type
+   * Course/batch
+   * Exam date
+   * Maximum marks
+   * Passing marks
+
+7. Exam Subjects / Components
+
+   * Theory
+   * Practical
+   * Viva
+   * Assignments
+   * Projects
+
+8. Marks Management
+
+   * Enter marks
+   * Update marks
+   * Grade calculation
+   * Pass/fail
+   * Percentage
+
+9. Result Management
+
+   * Student result
+   * Batch result
+   * Marksheet
+   * Result history
+   * Generate PDF later
+
+---
+
+### Phase 4, Projects
+
+10. Project Management
+
+For each student/team:
+
+```text
+Project
+├── Title
+├── Description
+├── Student(s)
+├── Guide/Teacher
+├── Start date
+├── Submission date
+├── Status
+├── Marks
+└── Remarks
+```
+
+Also:
+
+* Project assignment
+* Project milestones
+* Project submission
+* Project evaluation
+* Project marks
+
+---
+
+### Phase 5, Enquiries / Admissions
+
+This is important because your system starts before a student becomes a student.
+
+11. Enquiry Management
+
+```text
+Enquiry
+   ↓
+Follow-up
+   ↓
+Interested
+   ↓
+Admission
+   ↓
+Student
+   ↓
+Enrollment
+```
+
+Features:
+
+* New enquiry
+* Lead source
+* Interested course
+* Counsellor
+* Follow-up date
+* Follow-up history
+* Notes
+* Enquiry status
+* Conversion to student
+* Lost enquiry
+
+12. Admission Management
+
+* Admission form
+* Document checklist
+* Course selection
+* Batch selection
+* Initial payment
+* Enrollment creation
+
+---
+
+### Phase 6, Notifications
+
+13. Notification Management
+
+Internal notifications:
+
+```text
+Admin
+Teacher
+Student
+```
+
+Examples:
+
+* Fee due
+* Fee overdue
+* Low attendance
+* Exam announced
+* Result published
+* Project deadline
+* Batch changed
+* New announcement
+
+Later we can add:
+
+```text
+Email
+WhatsApp
+SMS
+Push notification
+```
+
+For MVP, internal notifications + email should be enough.
+
+---
+
+### Phase 7, Fees & Finance improvements
+
+Your basic Payment/Installment module exists.
+
+14. Fee Management improvements
+
+* Fee structure
+* Installments
+* Discounts
+* Scholarships
+* Late fees
+* Receipts
+* Refunds
+* Pending fees
+* Overdue fees
+* Payment history
+* Daily collection
+* Monthly collection
+* Course-wise revenue
+
+15. Financial Dashboard
+
+For admin:
+
+```text
+Today's Collection
+Monthly Collection
+Pending Fees
+Overdue Fees
+Expected Collection
+Course-wise Revenue
+```
+
+---
+
+### Phase 8, Dashboard & Reports
+
+16. Admin Dashboard
+
+This will become the main screen.
+
+```text
+Total Students
+Active Students
+Active Batches
+Teachers
+Today's Attendance
+Pending Fees
+Overdue Fees
+New Enquiries
+Upcoming Exams
+```
+
+17. Teacher Dashboard
+
+```text
+My Batches
+Students
+Today's Classes
+Attendance
+Upcoming Exams
+Projects
+Pending Tasks
+```
+
+18. Student Dashboard
+
+```text
+My Courses
+Attendance %
+Fees
+Upcoming Exams
+Marks
+Projects
+Notifications
+```
+
+19. Reports
+
+* Student report
+* Batch report
+* Attendance report
+* Fee report
+* Collection report
+* Exam report
+* Result report
+* Teacher workload
+* Enquiry conversion
+* Course performance
+
+---
+
+### Phase 9, Documents
+
+20. Document Management
+
+Student documents:
+
+```text
+Photo
+ID proof
+Certificates
+Admission documents
+Project files
+Marksheet
+Receipt
+```
+
+We'll eventually use object storage rather than putting large files directly inside MySQL.
+
+---
+
+### Phase 10, GUI
+
+Only after the backend MVP is stable.
+
+React frontend:
+
+```text
+React
+├── Login
+├── Dashboard
+├── Students
+├── Enquiries
+├── Courses
+├── Batches
+├── Teachers
+├── Enrollments
+├── Fees
+├── Attendance
+├── Exams
+├── Marks
+├── Projects
+├── Notifications
+└── Reports
+```
+
+I recommend React + TypeScript + Vite for this.
+
+For UI:
+
+```text
+React
+TypeScript
+Vite
+React Router
+TanStack Query
+React Hook Form
+Zod
+MUI
+```
+
+This will give you a fast admin-style application without spending weeks building basic UI components.
+
+---
+
+# What I recommend we do next
+
+Don't jump to React yet.
+
+We are roughly here:
+
+```text
+Authentication       ██████████ MVP
+Students             ██████████ MVP
+Courses              ██████████ MVP
+Batches              ██████████ MVP
+Enrollment           ██████████ MVP
+Payments             ██████████ MVP
+Attendance           █████████░ MVP
+```
+
+The biggest missing business flow is:
+
+```text
+Enquiry
+   ↓
+Admission
+   ↓
+Student
+   ↓
+Enrollment
+   ↓
+Batch
+   ↓
+Attendance
+   ↓
+Fees
+   ↓
+Exam
+   ↓
+Result
+   ↓
+Certificate
+```
+
+So I would build the next modules in this order:
+
+```text
+CURRENT
+   ↓
+136. Enquiry Management
+   ↓
+137. Follow-ups
+   ↓
+138. Admission Conversion
+   ↓
+139. Teacher Management
+   ↓
+140. Course/Batch improvements
+   ↓
+141. Exam Management
+   ↓
+142. Marks
+   ↓
+143. Results
+   ↓
+144. Project Management
+   ↓
+145. Notifications
+   ↓
+146. Reports
+   ↓
+147. Admin Dashboard APIs
+   ↓
+148. Backend MVP COMPLETE
+   ↓
+149. React + TypeScript
+   ↓
+150. Login GUI
+   ↓
+151. Admin Dashboard
+   ↓
+152. Student Management GUI
+   ↓
+153. Course/Batch GUI
+   ↓
+154. Fees GUI
+   ↓
+155. Attendance GUI
+   ↓
+156. Exams/Marks GUI
+```
+
+One change I recommend: start the next module with Enquiry Management, not Teacher Management.
+
+It gives SunComputer a complete admission pipeline, which is one of the core reasons for building the system in the first place.
+
+We can leave Attendance hardening for the final production-hardening phase.
