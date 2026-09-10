@@ -30,4 +30,8 @@ public interface TeacherRepository
     List<Teacher> findByStatus(
             TeacherStatus status
     );
+
+    long countByStatus(
+            TeacherStatus status
+    );
 }

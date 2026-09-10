@@ -30,4 +30,8 @@ public interface StudentRepository
     List<Student> findByStatus(
             StudentStatus status
     );
+
+    long countByStatus(
+            StudentStatus status
+    );
 }

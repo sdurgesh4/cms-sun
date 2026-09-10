@@ -5,8 +5,10 @@ import com.inturn.suncomputer.payment.entity.PaymentStatus;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface PaymentRepository
@@ -57,5 +59,29 @@ public interface PaymentRepository
     BigDecimal getTotalPaidForInstallment(
             Long installmentId,
             PaymentStatus status
+    );
+
+    @Query("""
+    SELECT COALESCE(SUM(p.amount), 0)
+    FROM Payment p
+    WHERE p.status = :status
+""")
+    BigDecimal getTotalAmountByStatus(
+            @Param("status")
+            PaymentStatus status
+    );
+
+    @Query("""
+    SELECT COALESCE(SUM(p.amount), 0)
+    FROM Payment p
+    WHERE p.status = :status
+    AND p.paymentDate = :paymentDate
+""")
+    BigDecimal getTotalAmountByStatusAndPaymentDate(
+            @Param("status")
+            PaymentStatus status,
+
+            @Param("paymentDate")
+            LocalDate paymentDate
     );
 }

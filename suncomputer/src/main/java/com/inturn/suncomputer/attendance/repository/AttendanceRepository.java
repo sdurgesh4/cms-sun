@@ -235,4 +235,13 @@ public interface AttendanceRepository
     );
 
 
+    long countByAttendanceDate(
+            LocalDate attendanceDate
+    );
+
+    long countByAttendanceDateAndStatus(
+            LocalDate attendanceDate,
+            AttendanceStatus status
+    );
+
 }

@@ -30,4 +30,8 @@ public interface BatchRepository
     List<Batch> findByTeacherId(
             Long teacherId
     );
+
+    long countByStatus(
+            BatchStatus status
+    );
 }

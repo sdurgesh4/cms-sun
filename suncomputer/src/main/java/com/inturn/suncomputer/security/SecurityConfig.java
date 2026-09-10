@@ -3,20 +3,19 @@ package com.inturn.suncomputer.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.http.HttpMethod;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
 import org.springframework.security.config.http.SessionCreationPolicy;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -26,24 +25,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
     private final CustomUserDetailsService userDetailsService;
 
     public SecurityConfig(
             JwtAuthenticationFilter jwtAuthenticationFilter,
             CustomUserDetailsService userDetailsService
     ) {
-
-        this.jwtAuthenticationFilter =
-                jwtAuthenticationFilter;
-
-        this.userDetailsService =
-                userDetailsService;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.userDetailsService = userDetailsService;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-
         return PasswordEncoderFactories
                 .createDelegatingPasswordEncoder();
     }
@@ -56,9 +49,7 @@ public class SecurityConfig {
                         userDetailsService
                 );
 
-        provider.setPasswordEncoder(
-                passwordEncoder()
-        );
+        provider.setPasswordEncoder(passwordEncoder());
 
         return provider;
     }
@@ -79,6 +70,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
 
+                .cors(cors -> {})
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
@@ -87,15 +80,28 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // Public
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/actuator/health"
                         ).permitAll()
 
+                        // Admin only
                         .requestMatchers(
-                                "/api/admin/**"
+                                "/api/admin/**",
+                                "/api/enquiries/**",
+                                "/api/reports/**"
                         ).hasRole("ADMIN")
 
+                        // Attendance
+                        .requestMatchers(
+                                "/api/attendance/**"
+                        ).hasAnyRole(
+                                "ADMIN",
+                                "TEACHER"
+                        )
+
+                        // Teacher APIs
                         .requestMatchers(
                                 "/api/teacher/**"
                         ).hasAnyRole(
@@ -103,6 +109,7 @@ public class SecurityConfig {
                                 "TEACHER"
                         )
 
+                        // Student APIs
                         .requestMatchers(
                                 "/api/student/**"
                         ).hasAnyRole(
@@ -110,6 +117,18 @@ public class SecurityConfig {
                                 "STUDENT"
                         )
 
+                        // Only admin can create notifications
+                        .requestMatchers(
+                                HttpMethod.POST,
+                                "/api/notifications"
+                        ).hasRole("ADMIN")
+
+                        // Logged-in users can access their own notifications
+                        .requestMatchers(
+                                "/api/notifications/**"
+                        ).authenticated()
+
+                        // Everything else requires authentication
                         .anyRequest()
                         .authenticated()
                 )

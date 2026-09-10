@@ -5,6 +5,7 @@ import com.inturn.suncomputer.installment.entity.InstallmentStatus;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,5 +48,19 @@ public interface InstallmentRepository
     """)
     BigDecimal getTotalInstallmentAmount(
             Long enrollmentId
+    );
+
+    long countByStatus(
+            InstallmentStatus status
+    );
+
+    @Query("""
+    SELECT COALESCE(SUM(i.amount), 0)
+    FROM Installment i
+    WHERE i.status = :status
+""")
+    BigDecimal getTotalAmountByStatus(
+            @Param("status")
+            InstallmentStatus status
     );
 }
