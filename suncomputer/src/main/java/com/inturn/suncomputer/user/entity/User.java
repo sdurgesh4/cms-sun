@@ -55,6 +55,19 @@ public class User {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+
+    @Column(name = "token_version", nullable = false)
+    private Long tokenVersion = 0L;
+
+
+    public Long getTokenVersion() {
+        return tokenVersion;
+    }
+
+    public void setTokenVersion(Long tokenVersion) {
+        this.tokenVersion = tokenVersion;
+    }
+    
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
@@ -143,4 +156,6 @@ public class User {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
+
 }

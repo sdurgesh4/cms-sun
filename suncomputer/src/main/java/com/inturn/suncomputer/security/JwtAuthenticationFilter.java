@@ -1,5 +1,8 @@
 package com.inturn.suncomputer.security;
 
+import com.inturn.suncomputer.user.entity.User;
+import com.inturn.suncomputer.user.repository.UserRepository;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -7,9 +10,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.security.core.userdetails.UserDetails;
+
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+
 import org.springframework.stereotype.Component;
+
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -22,12 +29,22 @@ public class JwtAuthenticationFilter
 
     private final CustomUserDetailsService userDetailsService;
 
+    private final UserRepository userRepository;
+
     public JwtAuthenticationFilter(
             JwtService jwtService,
-            CustomUserDetailsService userDetailsService
+            CustomUserDetailsService userDetailsService,
+            UserRepository userRepository
     ) {
-        this.jwtService = jwtService;
-        this.userDetailsService = userDetailsService;
+
+        this.jwtService =
+                jwtService;
+
+        this.userDetailsService =
+                userDetailsService;
+
+        this.userRepository =
+                userRepository;
     }
 
     @Override
@@ -38,68 +55,116 @@ public class JwtAuthenticationFilter
     ) throws ServletException, IOException {
 
         final String authHeader =
-                request.getHeader("Authorization");
+                request.getHeader(
+                        "Authorization"
+                );
 
         if (
-                authHeader == null ||
-                        !authHeader.startsWith("Bearer ")
+                authHeader == null
+                        || !authHeader.startsWith(
+                        "Bearer "
+                )
         ) {
 
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(
+                    request,
+                    response
+            );
+
             return;
         }
 
-        String jwt = authHeader.substring(7);
-
-        String username;
+        String jwt =
+                authHeader.substring(7);
 
         try {
 
-            username = jwtService.extractUsername(jwt);
+            String username =
+                    jwtService.extractUsername(
+                            jwt
+                    );
+
+            if (
+                    username != null
+                            && SecurityContextHolder
+                            .getContext()
+                            .getAuthentication() == null
+            ) {
+
+                User user =
+                        userRepository
+                                .findByUsername(
+                                        username
+                                )
+                                .orElse(null);
+
+                if (
+                        user == null
+                                || !user.isEnabled()
+                ) {
+
+                    filterChain.doFilter(
+                            request,
+                            response
+                    );
+
+                    return;
+                }
+
+                UserDetails userDetails =
+                        userDetailsService
+                                .loadUserByUsername(
+                                        username
+                                );
+
+                if (
+                        jwtService.isTokenValid(
+                                jwt,
+                                userDetails
+                        )
+                                && jwtService
+                                .isTokenVersionValid(
+                                        jwt,
+                                        user
+                                )
+                ) {
+
+                    UsernamePasswordAuthenticationToken
+                            authentication =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails
+                                            .getAuthorities()
+                            );
+
+                    authentication.setDetails(
+                            new WebAuthenticationDetailsSource()
+                                    .buildDetails(
+                                            request
+                                    )
+                    );
+
+                    SecurityContextHolder
+                            .getContext()
+                            .setAuthentication(
+                                    authentication
+                            );
+                }
+            }
 
         } catch (Exception exception) {
 
-            filterChain.doFilter(request, response);
-            return;
+            /*
+             * Invalid JWT is simply treated as
+             * unauthenticated. Spring Security will
+             * handle protected endpoints.
+             */
         }
 
-        if (
-                username != null &&
-                        SecurityContextHolder
-                                .getContext()
-                                .getAuthentication() == null
-        ) {
-
-            UserDetails userDetails =
-                    userDetailsService
-                            .loadUserByUsername(username);
-
-            if (
-                    jwtService.isTokenValid(
-                            jwt,
-                            userDetails
-                    )
-            ) {
-
-                UsernamePasswordAuthenticationToken
-                        authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails,
-                                null,
-                                userDetails.getAuthorities()
-                        );
-
-                authentication.setDetails(
-                        new WebAuthenticationDetailsSource()
-                                .buildDetails(request)
-                );
-
-                SecurityContextHolder
-                        .getContext()
-                        .setAuthentication(authentication);
-            }
-        }
-
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(
+                request,
+                response
+        );
     }
 }

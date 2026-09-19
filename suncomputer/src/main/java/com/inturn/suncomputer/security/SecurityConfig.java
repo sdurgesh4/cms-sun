@@ -82,9 +82,16 @@ public class SecurityConfig {
 
                         // Public
                         .requestMatchers(
-                                "/api/auth/**",
+                                "/api/auth/login",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password",
                                 "/actuator/health"
                         ).permitAll()
+
+                        .requestMatchers(
+                                "/api/auth/me",
+                                "/api/auth/change-password"
+                        ).authenticated()
 
                         // Admin only
                         .requestMatchers(
