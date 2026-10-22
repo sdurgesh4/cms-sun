@@ -101,12 +101,11 @@ public class SecurityConfig {
                         ).hasRole("ADMIN")
 
                         // Attendance
+                        // Legacy/general attendance APIs are admin-only.
+                        // Teachers use /api/teacher/** endpoints, which verify batch ownership.
                         .requestMatchers(
                                 "/api/attendance/**"
-                        ).hasAnyRole(
-                                "ADMIN",
-                                "TEACHER"
-                        )
+                        ).hasRole("ADMIN")
 
                         // Teacher APIs
                         .requestMatchers(

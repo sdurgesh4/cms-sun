@@ -29,8 +29,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class BatchServiceImpl
-        implements BatchService {
+public class BatchServiceImpl implements BatchService {
 
     private final BatchRepository batchRepository;
 
