@@ -1,5 +1,7 @@
 package com.inturn.suncomputer.course.service;
 
+import com.inturn.suncomputer.common.idcode.IdCodeService;
+
 import com.inturn.suncomputer.common.exception.DuplicateResourceException;
 import com.inturn.suncomputer.common.exception.ResourceNotFoundException;
 
@@ -24,39 +26,29 @@ public class CourseServiceImpl
 
     private final CourseRepository courseRepository;
 
+    private final IdCodeService idCodeService;
+
     public CourseServiceImpl(
-            CourseRepository courseRepository
-    ) {
+            CourseRepository courseRepository,
+            IdCodeService idCodeService
+        ) {
 
         this.courseRepository =
                 courseRepository;
+            this.idCodeService = idCodeService;
     }
+
+    
 
     @Override
     public CourseResponse createCourse(
             CreateCourseRequest request
     ) {
 
-        if (
-                courseRepository.existsByCode(
-                        request.code()
-                )
-        ) {
-
-            throw new DuplicateResourceException(
-                    "Course code already exists: "
-                            + request.code()
-            );
-        }
-
         Course course =
                 new Course();
 
-        course.setCode(
-                request.code()
-                        .trim()
-                        .toUpperCase()
-        );
+        course.setCode(idCodeService.next("COURSE"));
 
         course.setName(
                 request.name().trim()

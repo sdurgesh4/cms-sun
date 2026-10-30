@@ -1,5 +1,7 @@
 package com.inturn.suncomputer.enrollment.service;
 
+import com.inturn.suncomputer.common.idcode.IdCodeService;
+
 import com.inturn.suncomputer.batch.entity.Batch;
 import com.inturn.suncomputer.batch.entity.BatchStatus;
 
@@ -39,11 +41,13 @@ public class EnrollmentServiceImpl
     private final StudentRepository studentRepository;
 
     private final BatchRepository batchRepository;
+    private final IdCodeService idCodeService;
 
     public EnrollmentServiceImpl(
             EnrollmentRepository enrollmentRepository,
             StudentRepository studentRepository,
-            BatchRepository batchRepository
+            BatchRepository batchRepository,
+            IdCodeService idCodeService
     ) {
 
         this.enrollmentRepository =
@@ -54,6 +58,7 @@ public class EnrollmentServiceImpl
 
         this.batchRepository =
                 batchRepository;
+        this.idCodeService = idCodeService;
     }
 
     @Override
@@ -179,6 +184,7 @@ public class EnrollmentServiceImpl
         Enrollment enrollment =
                 new Enrollment();
 
+        enrollment.setEnrollmentCode(idCodeService.next("ENROLLMENT"));
         enrollment.setStudent(student);
 
         enrollment.setBatch(batch);
@@ -441,6 +447,8 @@ public class EnrollmentServiceImpl
         return new EnrollmentResponse(
 
                 enrollment.getId(),
+
+                enrollment.getEnrollmentCode(),
 
                 student.getId(),
 

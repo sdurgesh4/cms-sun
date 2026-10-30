@@ -1,5 +1,7 @@
 package com.inturn.suncomputer.batch.service;
 
+import com.inturn.suncomputer.common.idcode.IdCodeService;
+
 import com.inturn.suncomputer.batch.dto.BatchResponse;
 import com.inturn.suncomputer.batch.dto.CreateBatchRequest;
 import com.inturn.suncomputer.batch.dto.UpdateBatchRequest;
@@ -37,11 +39,14 @@ public class BatchServiceImpl implements BatchService {
 
     private final TeacherRepository teacherRepository;
 
+    private final IdCodeService idCodeService;
+
     public BatchServiceImpl(
             BatchRepository batchRepository,
             CourseRepository courseRepository,
-            TeacherRepository teacherRepository
-    ) {
+            TeacherRepository teacherRepository,
+            IdCodeService idCodeService
+        ) {
 
         this.batchRepository =
                 batchRepository;
@@ -51,7 +56,10 @@ public class BatchServiceImpl implements BatchService {
 
         this.teacherRepository =
                 teacherRepository;
+            this.idCodeService = idCodeService;
     }
+
+    
 
     @Override
     public BatchResponse createBatch(
@@ -59,18 +67,6 @@ public class BatchServiceImpl implements BatchService {
     ) {
 
         validateDatesAndTimes(request);
-
-        if (
-                batchRepository.existsByBatchCode(
-                        request.batchCode()
-                )
-        ) {
-
-            throw new DuplicateResourceException(
-                    "Batch code already exists: "
-                            + request.batchCode()
-            );
-        }
 
         Course course =
                 courseRepository
@@ -115,11 +111,7 @@ public class BatchServiceImpl implements BatchService {
         Batch batch =
                 new Batch();
 
-        batch.setBatchCode(
-                request.batchCode()
-                        .trim()
-                        .toUpperCase()
-        );
+        batch.setBatchCode(idCodeService.next("BATCH"));
 
         batch.setCourse(course);
 

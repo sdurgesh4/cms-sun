@@ -31,6 +31,9 @@ public class Enrollment {
     )
     private Long id;
 
+    @Column(name = "enrollment_code", nullable = false, unique = true, length = 50)
+    private String enrollmentCode;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "student_id",
@@ -118,6 +121,10 @@ public class Enrollment {
     public Long getId() {
         return id;
     }
+
+    public String getEnrollmentCode() { return enrollmentCode; }
+
+    public void setEnrollmentCode(String enrollmentCode) { this.enrollmentCode = enrollmentCode; }
 
     public Student getStudent() {
         return student;

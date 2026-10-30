@@ -1,5 +1,7 @@
 package com.inturn.suncomputer.teacher.service;
 
+import com.inturn.suncomputer.common.idcode.IdCodeService;
+
 import com.inturn.suncomputer.common.exception.DuplicateResourceException;
 import com.inturn.suncomputer.common.exception.ResourceNotFoundException;
 
@@ -28,35 +30,28 @@ public class TeacherServiceImpl
 
     private final UserRepository userRepository;
 
+    private final IdCodeService idCodeService;
+
     public TeacherServiceImpl(
             TeacherRepository teacherRepository,
-            UserRepository userRepository
-    ) {
+            UserRepository userRepository,
+            IdCodeService idCodeService
+        ) {
 
         this.teacherRepository =
                 teacherRepository;
 
         this.userRepository =
                 userRepository;
+            this.idCodeService = idCodeService;
     }
+
+    
 
     @Override
     public TeacherResponse createTeacher(
             CreateTeacherRequest request
     ) {
-
-        if (
-                teacherRepository
-                        .existsByEmployeeCode(
-                                request.employeeCode()
-                        )
-        ) {
-
-            throw new DuplicateResourceException(
-                    "Employee code already exists: "
-                            + request.employeeCode()
-            );
-        }
 
         if (
                 teacherRepository
@@ -102,11 +97,7 @@ public class TeacherServiceImpl
 
         teacher.setUser(user);
 
-        teacher.setEmployeeCode(
-                request.employeeCode()
-                        .trim()
-                        .toUpperCase()
-        );
+        teacher.setEmployeeCode(idCodeService.next("TEACHER"));
 
         teacher.setSpecialization(
                 request.specialization()

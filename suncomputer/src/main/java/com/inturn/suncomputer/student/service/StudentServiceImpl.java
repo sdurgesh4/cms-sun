@@ -1,5 +1,7 @@
 package com.inturn.suncomputer.student.service;
 
+import com.inturn.suncomputer.common.idcode.IdCodeService;
+
 import com.inturn.suncomputer.common.exception.BusinessRuleException;
 import com.inturn.suncomputer.common.exception.DuplicateResourceException;
 import com.inturn.suncomputer.common.exception.ResourceNotFoundException;
@@ -31,35 +33,28 @@ public class StudentServiceImpl
 
     private final UserRepository userRepository;
 
+    private final IdCodeService idCodeService;
+
     public StudentServiceImpl(
             StudentRepository studentRepository,
-            UserRepository userRepository
-    ) {
+            UserRepository userRepository,
+            IdCodeService idCodeService
+        ) {
 
         this.studentRepository =
                 studentRepository;
 
         this.userRepository =
                 userRepository;
+            this.idCodeService = idCodeService;
     }
+
+    
 
     @Override
     public StudentResponse createStudent(
             CreateStudentRequest request
     ) {
-
-        if (
-                studentRepository
-                        .existsByStudentCode(
-                                request.studentCode()
-                        )
-        ) {
-
-            throw new DuplicateResourceException(
-                    "Student code already exists: "
-                            + request.studentCode()
-            );
-        }
 
         if (
                 studentRepository
@@ -117,11 +112,7 @@ public class StudentServiceImpl
 
         student.setUser(user);
 
-        student.setStudentCode(
-                request.studentCode()
-                        .trim()
-                        .toUpperCase()
-        );
+        student.setStudentCode(idCodeService.next("STUDENT"));
 
         student.setDateOfBirth(
                 request.dateOfBirth()

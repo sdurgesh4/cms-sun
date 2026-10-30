@@ -10,6 +10,8 @@ public record EnrollmentResponse(
 
         Long id,
 
+        String enrollmentCode,
+
         Long studentId,
 
         String studentCode,
