@@ -16,4 +16,10 @@ public interface TeacherPortalService {
     BatchAttendanceDashboardResponse getAttendanceDashboard(String username, Long batchId, LocalDate startDate, LocalDate endDate);
     List<AttendanceReportResponse> getAttendanceReport(String username, Long batchId, LocalDate startDate, LocalDate endDate);
     List<LowAttendanceStudentResponse> getLowAttendance(String username, Long batchId, LocalDate startDate, LocalDate endDate, double threshold);
+    List<DailyAttendanceReportResponse> getDailyAttendanceReport(
+            String username,
+            Long batchId,
+            LocalDate startDate,
+            LocalDate endDate
+    );
 }

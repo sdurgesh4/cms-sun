@@ -140,4 +140,20 @@ public class TeacherPortalServiceImpl implements TeacherPortalService {
                 user.getFirstName(), user.getLastName(), fullName, user.getEmail(), user.getPhone(),
                 enrollment.getStatus(), student.getStatus(), enrollment.getEnrollmentDate());
     }
+
+    @Override
+    public List<DailyAttendanceReportResponse> getDailyAttendanceReport(
+            String username,
+            Long batchId,
+            LocalDate startDate,
+            LocalDate endDate
+    ) {
+        requireOwnedBatch(username, batchId);
+
+        return attendanceService.getDailyAttendanceReport(
+                batchId,
+                startDate,
+                endDate
+        );
+    }
 }

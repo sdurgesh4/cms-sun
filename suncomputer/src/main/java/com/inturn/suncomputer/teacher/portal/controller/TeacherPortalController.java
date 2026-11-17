@@ -69,4 +69,23 @@ public class TeacherPortalController {
             @RequestParam(defaultValue = "75") double threshold) {
         return teacherPortalService.getLowAttendance(user.getUsername(), batchId, startDate, endDate, threshold);
     }
+
+    @GetMapping("/batches/{batchId}/attendance/daily-report")
+    public List<DailyAttendanceReportResponse> getDailyAttendanceReport(
+            @AuthenticationPrincipal UserDetails user,
+            @PathVariable Long batchId,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate startDate,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate endDate
+    ) {
+        return teacherPortalService.getDailyAttendanceReport(
+                user.getUsername(),
+                batchId,
+                startDate,
+                endDate
+        );
+    }
 }
